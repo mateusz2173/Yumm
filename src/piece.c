@@ -13,22 +13,22 @@ const int offset[6][8] =
 	{ -11, -10, -9, -1, 1,  9, 10, 11 }  /* KING */
 };
 
-BYTE p_color(PIECE piece)
+BYTE piece_color(PIECE piece)
 {
     return piece & (1 << 7);
 }
 
-BYTE p_castle(PIECE piece) 
+BYTE piece_castle(PIECE piece) 
 {
     return piece & (1 << 4);
 }
 
-BYTE p_moved(PIECE piece)
+BYTE piece_moved(PIECE piece)
 {
     return piece & (1 << 3);
 }
 
-BYTE p_type(PIECE piece)
+BYTE piece_type(PIECE piece)
 {
     return piece & 7; // 7 = (1 << 3) - 1
 }

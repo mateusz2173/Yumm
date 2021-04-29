@@ -1,7 +1,8 @@
-#ifndef BOARD_H
-#define BOARD_H
+#pragma once
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "piece.h"
 
 typedef PIECE* BOARD;
@@ -11,7 +12,8 @@ enum color
     white, black
 };
 
-enum square {
+enum square 
+{
     a1, a2, a3, a4, a5, a6, a7, a8,
     b1, b2, b3, b4, b5, b6, b7, b8,
     c1, c2, c3, c4, c5, c6, c7, c8,
@@ -23,20 +25,17 @@ enum square {
 };
 
 extern const char sq_names[64][3];
-extern BOARD board;
 extern const int mailbox[120];
 extern const int mailbox64[64];
 
 void print(BOARD board);
 
-BOARD starting_pos(BOARD* board);
+BOARD create_board();
+void set_starting_pos(BOARD board);
 
 PIECE piece_at(BOARD board, int sq);
 
 BYTE color(BOARD board, int sq);
 BYTE moved(BOARD board, int sq);
 BYTE castle(BOARD board, int sq);
-BYTE type(BOARD board, int sq); //somewhat glitched
-
-
-#endif
+BYTE type(BOARD board, int sq); 

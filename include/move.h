@@ -1,16 +1,13 @@
-#ifndef MOVE_H
-#define MOVE_H
+#pragma once
 
 #include "board.h"
 
 typedef struct
 {
-    byte from, to;
-    piece piece_from, piece_to, piece_captured;
-    byte flags;
-    byte castle;
+    BYTE from, to;
+    PIECE piece_from, piece_to, piece_captured;
+    BYTE flags;
+    BYTE castle;
 } move;
 
 char* str(move m, char* str);
-
-#endif
