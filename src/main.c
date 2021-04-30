@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "../include/board.h"
+#include "../include/bitboard.h"
+#include "../include/move.h"
 
 #define _PRINT(x) printf(#x" = %d\n", x)
 #define _PRINTSTR(x) printf(#x" = %s\n", x)
@@ -7,11 +8,11 @@
 
 int main()
 {
-		BOARD board = create_board();
-		set_starting_pos(board);
+		position* pos = create_starting_position();
+		precalc_king_attacks(arr_king_attacks);
 
-		print(board);
+		print_board(arr_king_attacks[5]);
 
-		free(board);
+		free(pos);
 		return 0;
 }
