@@ -8,11 +8,11 @@
 
 int main()
 {
-		position* pos = create_starting_position();
-		precalc_king_attacks(arr_king_attacks);
+	position* pos = create_starting_position();
+	precalc_king_attacks(arr_king_attacks);
 
-		print_board(arr_king_attacks[5]);
+	print_board(arr_king_attacks[5]);
 
-		free(pos);
-		return 0;
+	free(pos);
+	return 0;
 }

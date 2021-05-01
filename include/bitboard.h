@@ -16,18 +16,18 @@ typedef byte square;
 
 enum color
 {
-		white, black
+	white, black
 };
 
 typedef struct
 {
-		U64 white_pawns, white_rooks, white_knights, white_bishops, white_king, white_queens;
-		U64 black_pawns, black_rooks, black_knights, black_bishops, black_king, black_queens;
-		U64 empty_squares;
-		int draw_move_counter;
-		byte turn;
-		byte castle_perm;
-		byte enpass_square;
+	U64 white_pawns, white_rooks, white_knights, white_bishops, white_king, white_queens;
+	U64 black_pawns, black_rooks, black_knights, black_bishops, black_king, black_queens;
+	U64 empty_squares;
+	int draw_move_counter;
+	byte turn;
+	byte castle_perm;
+	byte enpass_square;
 } position;
 
 position* create_starting_position();
