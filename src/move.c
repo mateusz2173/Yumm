@@ -3,6 +3,36 @@
 const U64 rank4 = 0x00000000FF000000;
 const U64 rank5 = 0x000000FF00000000;
 
+U64 rays_attacks[64][8];
+
+void init_rays_attacks()
+{
+	// directions's masks
+	U64 nort = 0x0101010101010100; 
+	U64 noea = 0x8040201008040200;	
+	U64 est  = 0x00000000000000FE; 
+
+	for (square sq=0; sq < 64; sq++, nort <<= 1)
+	   rays_attacks[sq][N] = nort;
+
+	for (int f=0; f < 8; f++, noea = east(noea))
+	{
+		U64 ne = noea;
+		for (int r8 = 0; r8 < 8*8; r8 += 8, ne <<= 8)
+			rays_attacks[r8+f][NE] = ne;
+	}
+
+	for(int f = 0; f < 8; ++f, est = east(est))
+	{
+		U64 e = est;
+		for(int r = 0; r < 8; ++r, e = north(e))
+		{
+			rays_attacks[r * 8 + f][E] = e;	
+		}
+	}
+
+}
+
 U64 arr_king_attacks[64];
 
 /* PAWNS MOVES */
