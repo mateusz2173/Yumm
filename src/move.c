@@ -8,7 +8,7 @@ U64 arr_king_attacks[64];
 
 void init_rays_attacks()
 {
-	// directions's masks
+	// directions' masks
 	U64 nort = 0x0101010101010100; 
 	U64 noea = 0x8040201008040200;	
 	U64 est  = 0x00000000000000FE; 
@@ -307,7 +307,7 @@ void precalc_king_attacks(U64 *arr)
 	U64 bb = 1;
 	for(int i = 0; i < 64; ++i, bb <<= 1)
 	{
-			arr[i] = king_attacks(bb);
+		arr[i] = king_attacks(bb);
 	}
 }
 

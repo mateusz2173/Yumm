@@ -39,14 +39,11 @@ position* create_starting_position()
 	
 	// 255 = 11111111
 	pos->white_pawns = (255 << 8);
-	// 36 = 00100100
-	pos->white_bishops = 36;
-	// 66 = 01000010
-	pos->white_knights = 66;
-	// 129 = 100000001
-	pos->white_rooks = 129;
-	pos->white_king = (1 << 4);
-	pos->white_queens = (1 << 3);
+	pos->white_bishops = (1 << c1) | (1 << f1);
+	pos->white_knights = (1 << b1) | (1 << g1);
+	pos->white_rooks = (1 << a1) | (1 << h1);
+	pos->white_king = (1 << e1);
+	pos->white_queens = (1 << d1);
 
 	pos->black_pawns = pos->white_pawns << (8 * 5);
 	pos->black_bishops = pos->white_bishops << (8 * 7);
