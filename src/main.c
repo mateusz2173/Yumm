@@ -13,7 +13,9 @@ int main()
 	precalc_king_attacks(arr_king_attacks);
 	init_rays_attacks();
 
-	print_chess_board(rays_attacks[a1][W]);
+	pos->white_queens = (1 << d4);
+
+	print_chess_board(queen_attacks(pos->white_queens, pos->empty_squares));
 
 	free(pos);
 	return 0;

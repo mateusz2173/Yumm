@@ -44,7 +44,11 @@ typedef struct
 
 position* create_starting_position();
 
-square bitscan_forward(U64 bb);
+extern const U64 not_A_file;
+extern const U64 not_H_file;
+
+square bitscan_reverse(U64 bb);
+square bitscan(U64 bb, byte reverse);
 
 U64 square_to_bitboard(square sq);
 
