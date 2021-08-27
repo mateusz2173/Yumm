@@ -6,7 +6,7 @@ TODO list:
 
 - ~~bitboards~~
 - ~~pieces moves~~
-- detecting single/double checks
+- ~~detecting single/double checks~~
 - detecting mates/stalemates
 - move generation
 - detecting repetition/50 moves rule
