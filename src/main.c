@@ -1,22 +1,37 @@
 #include <stdio.h>
 #include "../include/bitboard.h"
-#include "../include/move.h"
+#include "../include/bitboard_attacks.h"
+#include "../include/square_attacks.h"
 
 #define _PRINT(x) printf(#x" = %d\n", x)
 #define _PRINTSTR(x) printf(#x" = %s\n", x)
 #define _PRINTHEX(x) printf(#x" = %x\n", x)
 #define _NEWLINE() printf("\n")
+#define _PRINTBOARD(b) printf(#b" => \n"); print_chess_board(b)
+
+void init_engine();
+U64 pins();
 
 int main()
 {
-	position* pos = create_starting_position();
-	precalc_king_attacks(arr_king_attacks);
-	init_rays_attacks();
+    init_engine();
 
-	pos->white_queens = (1 << d4);
+    position pos = {0};
 
-	print_chess_board(queen_attacks(pos->white_queens, pos->empty_squares));
+    pos.turn = black;
+    pos.black_king = square_to_bitboard(f8);
+    pos.white_king = square_to_bitboard(a1);
+    pos.white_rooks = square_to_bitboard(b8);
+    pos.black_pawns = square_to_bitboard(d8);
+    pos.empty_squares = ~(pos.black_king | pos.white_king | pos.white_rooks | pos.black_pawns);
 
-	free(pos);
+    _PRINTBOARD(pins(pos));
+
 	return 0;
+}
+
+void init_engine()
+{
+    precalc_king_attacks(arr_king_attacks);
+	init_rays_attacks();
 }

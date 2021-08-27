@@ -3,6 +3,10 @@
 const U64 not_A_file = 0xfefefefefefefefe; // ~0x0101010101010101
 const U64 not_H_file = 0x7f7f7f7f7f7f7f7f; // ~0x8080808080808080
 
+const U64 rank4 = 0x00000000FF000000;
+const U64 rank5 = 0x000000FF00000000;
+
+// Some magic which makes bitscan efficient 
 const int index64[64] = 
 {
 	0, 47,  1, 56, 48, 27,  2, 60,
@@ -14,7 +18,6 @@ const int index64[64] =
 	25, 39, 14, 33, 19, 30,  9, 24,
 	13, 18,  8, 12,  7,  6,  5, 63
 };
-
 const U64 debruijn64 = 0x03f79d71b4cb0a89;
 
 U64 square_to_bitboard(square sq)
@@ -58,6 +61,23 @@ position* create_starting_position()
 	return pos;
 }
 
+U64 pieces(position pos, byte color)
+{
+    if(color == white)
+    {
+        return pos.white_king    | pos.white_pawns
+            |  pos.white_rooks   | pos.white_queens 
+            |  pos.white_bishops | pos.white_knights;
+    }
+    else
+    {
+        return pos.black_king    | pos.black_pawns
+            |  pos.black_rooks   | pos.black_queens 
+            |  pos.black_bishops | pos.black_knights;
+    }
+}
+
+// returns index of the most significant bit
 square bitscan_reverse(U64 bb)
 {
 	bb |= bb >> 1; 
@@ -69,6 +89,9 @@ square bitscan_reverse(U64 bb)
 	return index64[(bb * debruijn64) >> 58];
 }
 
+
+// Returns index of the least significant bit
+// If reverse flag is true, returns most significant bit instead
 square bitscan(U64 bb, byte reverse)
 {
 	U64 rMask = -(U64)reverse;
@@ -76,6 +99,8 @@ square bitscan(U64 bb, byte reverse)
 	return bitscan_reverse(bb);
 }
 
+
+// Some basic bb transformations
 U64 north(U64 b) {return b << 8;}
 U64 south(U64 b) {return b >> 8;}
 U64 east (U64 b) {return (b << 1) & not_A_file;}
@@ -85,6 +110,10 @@ U64 south_east (U64 b) {return (b >> 7) & not_A_file;}
 U64 south_west (U64 b) {return (b >> 9) & not_H_file;}
 U64 north_west (U64 b) {return (b << 7) & not_H_file;}
 
+// Other
+
+
+// for debug purposes
 void print_board(U64 b)
 {
 	for(int r = 0; r < 8; ++r)

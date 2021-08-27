@@ -43,9 +43,13 @@ typedef struct
 } position;
 
 position* create_starting_position();
+U64 pieces(position pos, byte color);
 
 extern const U64 not_A_file;
 extern const U64 not_H_file;
+
+extern const U64 rank4;
+extern const U64 rank5;
 
 square bitscan_reverse(U64 bb);
 square bitscan(U64 bb, byte reverse);
@@ -63,5 +67,3 @@ U64 north_west(U64 b);
 
 void print_board(U64 b);
 void print_chess_board(U64 b);
-
-
