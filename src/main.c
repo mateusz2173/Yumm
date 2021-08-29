@@ -2,6 +2,7 @@
 #include "../include/bitboard.h"
 #include "../include/bitboard_attacks.h"
 #include "../include/square_attacks.h"
+#include "../include/game_utility.h"
 
 #define _PRINT(x) printf(#x" = %d\n", x)
 #define _PRINTSTR(x) printf(#x" = %s\n", x)
@@ -16,22 +17,20 @@ int main()
 {
     init_engine();
 
-    position pos = {0};
+    position* pos = create_starting_position();
+    pos->black_bishops = (1ULL << f3);
+    update_empty_squares(pos);
 
-    pos.turn = black;
-    pos.black_king = square_to_bitboard(f8);
-    pos.white_king = square_to_bitboard(a1);
-    pos.white_rooks = square_to_bitboard(b8);
-    pos.black_pawns = square_to_bitboard(d8);
-    pos.empty_squares = ~(pos.black_king | pos.white_king | pos.white_rooks | pos.black_pawns);
+    Move moves[1024];
 
-    _PRINTBOARD(pins(pos));
+    generate_legal_moves(*pos, moves);
 
+    free(pos);
 	return 0;
 }
 
 void init_engine()
 {
-    precalc_king_attacks(arr_king_attacks);
+    precalc_attacks(arr_king_attacks);
 	init_rays_attacks();
 }

@@ -30,3 +30,6 @@ U64 king_attacks(U64 king);
 U64 rook_attacks(U64 rooks, U64 empty_squares);
 U64 bishop_attacks(U64 rooks, U64 empty_squares);
 U64 queen_attacks(U64 rooks, U64 empty_squares);
+
+//general attacks
+U64 bb_attacks_by(position pos, byte color);

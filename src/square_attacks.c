@@ -2,6 +2,10 @@
 
 U64 rays_attacks[64][8];
 U64 arr_king_attacks[64];
+U64 arr_pawn_attacks[2][64];
+U64 arr_pawn_single_pushes[2][64];
+U64 arr_pawn_double_pushes[2][64];
+U64 arr_knight_attacks[64];
 
 // fills array rays_attacks with data
 void init_rays_attacks()
@@ -11,7 +15,7 @@ void init_rays_attacks()
 	U64 noea = 0x8040201008040200;	
 	U64 est  = 0x00000000000000FE; 
 	U64 sout = 0x0080808080808080;
-	U64 wst =  0x7F00000000000000;
+	U64 wst  = 0x7F00000000000000;
 	U64 sowe = 0x0040201008040201;
 	U64 nowe = 0x0102040810204000;
 	U64 soea = 0x0002040810204080;
@@ -58,7 +62,7 @@ void init_rays_attacks()
 			rays_attacks[r * 8 + f][SW] = sw;
 
 			s = south(s);
-			w = south(wst);
+			w = south(w);
 			sw = south(sw);
 		}
 		for(int r = 0; r < 8; ++r, nw = north(nw))
@@ -93,7 +97,7 @@ U64 anti_diagonal_attacks(square sq)
 }
 
 // returns all attacks in given direction from given square limited by blockes 
-U64 obstructed_ray_attacks(U64 empty_squares, byte direction, square sq)
+U64 sq_obstructed_ray_attacks(U64 empty_squares, byte direction, square sq)
 {
 	U64 occupied = ~empty_squares;
 	U64 attacks = rays_attacks[sq][direction];
@@ -112,29 +116,39 @@ U64 obstructed_ray_attacks(U64 empty_squares, byte direction, square sq)
 U64 sq_rook_attacks(U64 occ, square rook_sq)
 {
     U64 empty_squares = ~occ;
-    return obstructed_ray_attacks(empty_squares, N, rook_sq)
-        |  obstructed_ray_attacks(empty_squares, S, rook_sq)
-        |  obstructed_ray_attacks(empty_squares, E, rook_sq)
-        |  obstructed_ray_attacks(empty_squares, W, rook_sq);
+    return sq_obstructed_ray_attacks(empty_squares, N, rook_sq)
+        |  sq_obstructed_ray_attacks(empty_squares, S, rook_sq)
+        |  sq_obstructed_ray_attacks(empty_squares, E, rook_sq)
+        |  sq_obstructed_ray_attacks(empty_squares, W, rook_sq);
 }
 
 U64 sq_bishop_attacks(U64 occ, square bishop_sq)
 {
     U64 empty_squares = ~occ;
-    return obstructed_ray_attacks(empty_squares, NE, bishop_sq)
-        |  obstructed_ray_attacks(empty_squares, NW, bishop_sq)
-        |  obstructed_ray_attacks(empty_squares, SE, bishop_sq)
-        |  obstructed_ray_attacks(empty_squares, SW, bishop_sq);
+    return sq_obstructed_ray_attacks(empty_squares, NE, bishop_sq)
+        |  sq_obstructed_ray_attacks(empty_squares, NW, bishop_sq)
+        |  sq_obstructed_ray_attacks(empty_squares, SE, bishop_sq)
+        |  sq_obstructed_ray_attacks(empty_squares, SW, bishop_sq);
 }
 
-void precalc_king_attacks()
+void precalc_attacks()
 {
 	U64 bb = 1;
 	for(int i = 0; i < 64; ++i, bb <<= 1)
 	{
+        U64 pushed_north = north(bb);
+        U64 pushed_south = south(bb);
 		arr_king_attacks[i] = king_attacks(bb);
+        arr_pawn_attacks[white][i] = white_pawn_attacks(bb);
+        arr_pawn_attacks[black][i] = black_pawn_attacks(bb);
+        arr_pawn_single_pushes[white][i] = pushed_north; 
+        arr_pawn_single_pushes[black][i] = pushed_south;
+        arr_pawn_double_pushes[white][i] = north(pushed_north) & rank4;
+        arr_pawn_double_pushes[black][i] = south(pushed_south) & rank5;
+        arr_knight_attacks[i] = knight_attacks(bb);
 	}
 }
+
 
 /* XRAY ATTACKS */
 
@@ -150,4 +164,34 @@ U64 xray_bishop_attacks(U64 occ, U64 blockers, square bishop_square)
     U64 attacks = sq_bishop_attacks(occ, bishop_square);
     blockers &= attacks;
     return attacks ^ sq_bishop_attacks(occ ^ blockers, bishop_square);
+}
+
+U64 attacks_to_sq(position pos, square sq, byte color)
+{
+    U64 bishops, rooks, queens, kings, knights, pawns;
+    U64 occ = ~pos.empty_squares;
+    if(color == white)
+    {
+        bishops = pos.white_bishops;
+        rooks = pos.white_rooks;
+        queens = pos.white_queens;
+        kings = pos.white_king;
+        knights = pos.white_knights;
+        pawns = pos.white_pawns;
+   }
+    else
+    {
+        bishops = pos.black_bishops;
+        rooks = pos.black_rooks;
+        queens = pos.black_queens;
+        kings = pos.black_king;
+        knights = pos.black_knights;
+        pawns = pos.black_pawns;
+    }
+
+    return (arr_pawn_attacks[1 - color][sq] & pawns)
+        |  (arr_knight_attacks[sq] & knights)
+        |  (arr_king_attacks[sq] & kings)
+        |  (sq_rook_attacks(occ, sq) & (rooks | queens))
+        |  (sq_bishop_attacks(occ, sq) & (bishops | queens));
 }

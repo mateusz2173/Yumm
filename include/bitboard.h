@@ -31,6 +31,14 @@ enum squares
 	a8, b8, c8, d8, e8, f8, g8, h8
 };
 
+enum pieces
+{
+    PAWN, BISHOP, KNIGHT, ROOK, QUEEN, KING
+};
+
+extern const char SQ_NAMES[64][3];
+extern const char PIECE_NAMES[2][6];
+
 typedef struct
 {
 	U64 white_pawns, white_rooks, white_knights, white_bishops, white_king, white_queens;
@@ -44,6 +52,7 @@ typedef struct
 
 position* create_starting_position();
 U64 pieces(position pos, byte color);
+void update_empty_squares(position* pos);
 
 extern const U64 not_A_file;
 extern const U64 not_H_file;

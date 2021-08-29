@@ -193,3 +193,27 @@ U64 queen_attacks(U64 queens, U64 empty_squares)
 		 | bishop_attacks(queens, empty_squares);
 }
 
+// General attacks
+U64 bb_attacks_by(position pos, byte color)
+{
+    if(color == white)
+    {
+        U64 bb_RQ = pos.white_rooks | pos.white_queens;
+        U64 bb_BQ = pos.white_bishops | pos.white_queens;
+        return rook_attacks(bb_RQ, pos.empty_squares) 
+            |  bishop_attacks(bb_BQ, pos.empty_squares)
+            |  knight_attacks(pos.white_knights)
+            |  white_pawn_attacks(pos.white_pawns);
+    }
+    else
+    {
+        U64 bb_RQ = pos.black_rooks | pos.black_queens;
+        U64 bb_BQ = pos.black_bishops | pos.black_queens;
+        return rook_attacks(bb_RQ, pos.empty_squares) 
+            |  bishop_attacks(bb_BQ, pos.empty_squares)
+            |  knight_attacks(pos.black_knights)
+            |  black_pawn_attacks(pos.black_pawns);
+    }
+}
+
+
