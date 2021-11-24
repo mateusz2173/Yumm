@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 typedef uint64_t U64;
 typedef uint8_t byte;
@@ -14,9 +15,11 @@ typedef byte square;
 #define CASTLE_BK 4
 #define CASTLE_BQ 8
 
+#define _MASK_BIT(x, b) ((1ULL << (b)) & (x))
+
 enum color
 {
-	white, black
+	WHITE, BLACK, NONE
 };
 
 enum squares 
@@ -33,17 +36,20 @@ enum squares
 
 enum pieces
 {
-    PAWN, BISHOP, KNIGHT, ROOK, QUEEN, KING
+    PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EMPTY
 };
+
+typedef int UTFCHAR;
 
 extern const char SQ_NAMES[64][3];
 extern const char PIECE_NAMES[2][6];
+extern const wchar_t PIECE_CHARS[2][6]; 
 
 typedef struct
 {
-	U64 white_pawns, white_rooks, white_knights, white_bishops, white_king, white_queens;
-	U64 black_pawns, black_rooks, black_knights, black_bishops, black_king, black_queens;
+    U64 pieces[2][6];
 	U64 empty_squares;
+    U64 pinned;
 	int draw_move_counter;
 	byte turn;
 	byte castle_perm;
@@ -53,6 +59,10 @@ typedef struct
 position* create_starting_position();
 U64 pieces(position pos, byte color);
 void update_empty_squares(position* pos);
+position parse_fen(const char* fen);
+
+byte piece_on_square(position pos, square sq);
+byte color_on_square(position pos, square sq);
 
 extern const U64 not_A_file;
 extern const U64 not_H_file;
@@ -76,3 +86,4 @@ U64 north_west(U64 b);
 
 void print_board(U64 b);
 void print_chess_board(U64 b);
+void print_position(position pos);

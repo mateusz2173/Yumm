@@ -34,8 +34,14 @@ const char SQ_NAMES[64][3] =
 
 const char PIECE_NAMES[2][6] =
 {
-    {'P', 'B', 'N', 'R', 'Q', 'K'},
-    {'p', 'b', 'n', 'r', 'q', 'k'}
+    {'P', 'N', 'B', 'R', 'Q', 'K'},
+    {'p', 'n', 'b', 'r', 'q', 'k'}
+};
+
+const wchar_t PIECE_CHARS[2][6] = 
+{
+    {0x265F, 0x265E, 0x265D, 0x265C, 0x265B, 0x265A},
+    {0x2659, 0x2658, 0x2657, 0x2656, 0x2655, 0x2654}
 };
 
 U64 square_to_bitboard(square sq)
@@ -43,62 +49,51 @@ U64 square_to_bitboard(square sq)
 	return (U64) (1ULL << sq);
 }
 
-position* create_starting_position()
-{
-	position* pos = (position*) malloc(sizeof(position));
-
-	if(!pos)
-	{
-		fprintf(stderr, "Couldn't allocate memory.");
-		return NULL;
-	}
-
-	pos->turn = white;
-	pos->castle_perm = CASTLE_WK | CASTLE_WQ | CASTLE_BK | CASTLE_BQ;
-	pos->enpass_square = -1;
-	pos->draw_move_counter = 0;
-	
-	// 255 = 11111111
-	pos->white_pawns = (255 << 8);
-	pos->white_bishops = (1 << c1) | (1 << f1);
-	pos->white_knights = (1 << b1) | (1 << g1);
-	pos->white_rooks = (1 << a1) | (1 << h1);
-	pos->white_king = (1 << e1);
-	pos->white_queens = (1 << d1);
-
-	pos->black_pawns = pos->white_pawns << (8 * 5);
-	pos->black_bishops = pos->white_bishops << (8 * 7);
-	pos->black_knights = pos->white_knights << (8 * 7);
-	pos->black_rooks = pos->white_rooks << (8 * 7);
-	pos->black_queens = pos->white_queens << (8 * 7);
-	pos->black_king = pos->white_king << (8 * 7);
-
-	U64 double_rank = (1 << 16) - 1;
-	pos->empty_squares = ~((double_rank << (8 * 6)) | double_rank);
-
-	return pos;
-}
-
 U64 pieces(position pos, byte color)
 {
-    if(color == white)
+    U64 result = 0ULL;
+    if(color == WHITE)
     {
-        return pos.white_king    | pos.white_pawns
-            |  pos.white_rooks   | pos.white_queens 
-            |  pos.white_bishops | pos.white_knights;
+        for(int i = 0; i < 6; ++i)
+            result |= pos.pieces[WHITE][i];
     }
     else
     {
-        return pos.black_king    | pos.black_pawns
-            |  pos.black_rooks   | pos.black_queens 
-            |  pos.black_bishops | pos.black_knights;
+        for(int i = 0; i < 6; ++i)
+            result |= pos.pieces[BLACK][i];
     }
+
+    return result;
 }
 
 void update_empty_squares(position* pos)
 {
-    pos->empty_squares = ~(pieces(*pos, white) | pieces(*pos, black));
+    pos->empty_squares = ~(pieces(*pos, WHITE) | pieces(*pos, BLACK));
 }
+
+byte piece_on_square(position pos, square sq)
+{
+    for(int i = 0; i < 6; ++i)
+    {
+        if(_MASK_BIT(pos.pieces[WHITE][i] | pos.pieces[BLACK][i], sq))
+            return i;
+    }
+
+    return EMPTY;
+}
+
+byte color_on_square(position pos, square sq)
+{
+    if(_MASK_BIT(pieces(pos, WHITE), sq))
+        return WHITE;
+
+    else if(_MASK_BIT(pieces(pos, BLACK), sq))
+        return BLACK;
+
+    return NONE;
+}
+
+
 
 // returns index of the most significant bit
 square bitscan_reverse(U64 bb)
@@ -164,4 +159,28 @@ void print_chess_board(U64 b)
 		}
 		printf("\n");
 	}
+}
+
+#define _POS_DELIMETER ' '
+void print_position(position pos)
+{
+    for(int r = 7; r >= 0; --r)
+    {
+        for(int f = 0; f <= 7; ++f)
+        {
+            square sq = r * 8 + f;
+            byte color = color_on_square(pos, sq);
+
+            if(color == NONE)
+            {
+                printf("%c  ", _POS_DELIMETER);
+            }
+            else 
+            {
+                byte type = piece_on_square(pos, sq);
+                wprintf(L"%lc  ", PIECE_CHARS[color][type]);
+            }
+        }
+        printf("\n");
+    }
 }

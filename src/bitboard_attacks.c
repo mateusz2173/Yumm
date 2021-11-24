@@ -1,8 +1,8 @@
 #include "../include/bitboard_attacks.h"
 
-/* BB DIRECTION ATTACKS */
+/* BB RAYS ATTACKS OCCLUDED */
 
-U64 south_attacks(U64 gen, U64 pro) 
+U64 south_attacks_occl(U64 gen, U64 pro) 
 {
 	gen |= pro & (gen >>  8);
 	pro &=       (pro >>  8);
@@ -12,7 +12,7 @@ U64 south_attacks(U64 gen, U64 pro)
 	return gen;
 }
 
-U64 north_attacks(U64 gen, U64 pro) 
+U64 north_attacks_occl(U64 gen, U64 pro) 
 {
 	gen |= pro & (gen <<  8);
 	pro &=       (pro <<  8);
@@ -23,7 +23,7 @@ U64 north_attacks(U64 gen, U64 pro)
 }
 
 
-U64 east_attacks(U64 gen, U64 pro) 
+U64 east_attacks_occl(U64 gen, U64 pro) 
 {
 	pro &= not_A_file;
 	gen |= pro & (gen << 1);
@@ -34,7 +34,7 @@ U64 east_attacks(U64 gen, U64 pro)
 	return gen;
 }
 
-U64 north_east_attacks(U64 gen, U64 pro) 
+U64 north_east_attacks_occl(U64 gen, U64 pro) 
 {
 	pro &= not_A_file;
 	gen |= pro & (gen <<  9);
@@ -45,7 +45,7 @@ U64 north_east_attacks(U64 gen, U64 pro)
 	return gen;
 }
 
-U64 south_east_attacks(U64 gen, U64 pro) 
+U64 south_east_attacks_occl(U64 gen, U64 pro) 
 {
 	pro &= not_A_file;
 	gen |= pro & (gen >>  7);
@@ -56,7 +56,7 @@ U64 south_east_attacks(U64 gen, U64 pro)
 	return gen;
 }
 
-U64 west_attacks(U64 gen, U64 pro) 
+U64 west_attacks_occl(U64 gen, U64 pro) 
 {
 	pro &= not_H_file;
 	gen |= pro & (gen >> 1);
@@ -67,7 +67,7 @@ U64 west_attacks(U64 gen, U64 pro)
 	return gen;
 }
 
-U64 south_west_attacks(U64 gen, U64 pro)
+U64 south_west_attacks_occl(U64 gen, U64 pro)
 {
 	pro &= not_H_file;
 	gen |= pro & (gen >>  9);
@@ -78,7 +78,7 @@ U64 south_west_attacks(U64 gen, U64 pro)
 	return gen;
 }
 
-U64 north_west_attacks(U64 gen, U64 pro)
+U64 north_west_attacks_occl(U64 gen, U64 pro)
 {
 	pro &= not_H_file;
 	gen |= pro & (gen <<  7);
@@ -87,6 +87,48 @@ U64 north_west_attacks(U64 gen, U64 pro)
 	pro &=       (pro << 14);
 	gen |= pro & (gen << 28);
 	return gen;
+}
+
+/* BB ATTACKS */
+
+U64 south_attacks(U64 gen, U64 pro)
+{
+    return south(south_attacks_occl(gen, pro));
+}
+
+U64 north_attacks(U64 gen, U64 pro)
+{
+    return north(north_attacks_occl(gen, pro));
+}
+
+U64 east_attacks(U64 gen, U64 pro)
+{
+    return east(east_attacks_occl(gen, pro));
+}
+
+U64 west_attacks(U64 gen, U64 pro)
+{
+    return west(west_attacks_occl(gen, pro));
+}
+
+U64 north_east_attacks(U64 gen, U64 pro)
+{
+    return north_east(north_east_attacks_occl(gen, pro));
+}
+
+U64 south_east_attacks(U64 gen, U64 pro)
+{
+    return south_east(south_east_attacks_occl(gen, pro));
+}
+
+U64 south_west_attacks(U64 gen, U64 pro)
+{
+    return south_west(south_west_attacks_occl(gen, pro));
+}
+
+U64 north_west_attacks(U64 gen, U64 pro)
+{
+    return north_west(north_west_attacks_occl(gen, pro));
 }
 
 /* PAWNS MOVES */
@@ -196,24 +238,15 @@ U64 queen_attacks(U64 queens, U64 empty_squares)
 // General attacks
 U64 bb_attacks_by(position pos, byte color)
 {
-    if(color == white)
-    {
-        U64 bb_RQ = pos.white_rooks | pos.white_queens;
-        U64 bb_BQ = pos.white_bishops | pos.white_queens;
-        return rook_attacks(bb_RQ, pos.empty_squares) 
-            |  bishop_attacks(bb_BQ, pos.empty_squares)
-            |  knight_attacks(pos.white_knights)
-            |  white_pawn_attacks(pos.white_pawns);
-    }
-    else
-    {
-        U64 bb_RQ = pos.black_rooks | pos.black_queens;
-        U64 bb_BQ = pos.black_bishops | pos.black_queens;
-        return rook_attacks(bb_RQ, pos.empty_squares) 
-            |  bishop_attacks(bb_BQ, pos.empty_squares)
-            |  knight_attacks(pos.black_knights)
-            |  black_pawn_attacks(pos.black_pawns);
-    }
+    U64 bb_RQ = pos.pieces[color][ROOK] | pos.pieces[color][QUEEN];
+    U64 bb_BQ = pos.pieces[color][BISHOP] | pos.pieces[color][QUEEN];
+
+    U64 occ = pieces(pos, WHITE) | pieces(pos, BLACK);
+
+    return rook_attacks(bb_RQ, ~occ) 
+        |  bishop_attacks(bb_BQ, ~occ)
+        |  knight_attacks(pos.pieces[color][KNIGHT])
+        |  white_pawn_attacks(pos.pieces[color][PAWN]);
 }
 
 
